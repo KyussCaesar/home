@@ -1,0 +1,278 @@
+" vimrc by antony.
+
+execute pathogen#infect()
+
+" Reminder of what some of your plugins do:
+"
+" Abolish:
+"
+" :Abolish {despa,sepe}rat{e,es,ed,ing,ely,ion,ions,or}  {despe,sepa}rat{}
+"
+" :%Subvert/facilit{y,ies}/building{,s}/g
+"
+" crm       MixedCase
+" crc       camelCase
+" crs       snake_case
+" cru       UPPER_CASE
+" cr-       dash-case
+" cr.       dot.case
+" cr<space> space case
+" crt       Title Case
+"
+" syntastic: syntax checking
+" fugitive: git stuff
+" gitgutter: show changes in working tree in sidebar
+"
+" surround:
+"
+" ys{text object}{thing to surround with}
+" cs{old surrounding}{new surrounding}
+" ds{surrounding}
+
+filetype plugin on
+
+syntax on
+
+" Use Vim as man-pager
+runtime! ftplugin/man.vim
+let g:ft_man_open_mode = 'tab'
+set keywordprg=:Man
+
+" navigation and keybindings
+" {
+
+" navigate tabs
+nnoremap <F2> :tabp<CR>
+nnoremap <F3> :tabn<CR>
+vnoremap <F2> <ESC>:tabp<CR>
+vnoremap <F3> <ESC>:tabn<CR>
+
+" scrolling
+nnoremap H <C-Y>
+nnoremap L <C-E>
+
+map <ScrollWheelUp> <C-Y>
+map <ScrollWheelDown> <C-E>
+
+" window navigation
+map <C-h> <C-w>h
+map <C-j> <C-w>j
+map <C-k> <C-w>k
+map <C-l> <C-w>l
+
+" quicker leave visual mode
+vnoremap i <ESC>i
+vnoremap : <ESC>:
+
+" nagivate wrapped lines properly
+nnoremap j gj
+nnoremap k gk
+
+" Insert blank line in normal mode
+nnoremap <CR> o<Esc>
+
+" Mappings for writing HTML
+" these mostly just auto-complete a tag
+function HtmlBindings()
+    " generally-speaking, it's <Leader>X for <X>, and <Leader><Leader>X for
+    " </X>
+
+	" paragraph
+	inoremap <Leader>p <p>
+	inoremap <Leader><Leader>p </p>
+
+	" headings
+	inoremap <Leader>h <h
+	inoremap <Leader><Leader>h </h>
+
+	" section
+	inoremap <Leader>s <section>
+	inoremap <Leader><Leader>s </section>
+
+	" class
+	inoremap <Leader>c class="
+
+	" italics, bold, underline
+	inoremap <Leader>i <em>
+	inoremap <Leader><Leader>i </em>
+	inoremap <Leader>b <strong>
+	inoremap <Leader><Leader>b </strong>
+	inoremap <Leader>u <underline>
+	inoremap <Leader><Leader>u </underline>
+endfunction
+
+" }
+
+" folding
+" {
+
+set foldmethod=marker 
+set foldmarker={,}
+set foldcolumn=4
+set foldopen-=block
+
+nnoremap <space> za
+
+" end folding }
+
+" various settings (tabstop, wrapping, statusline)
+" {
+
+set wildmode=longest,list,full
+set wildmenu
+
+set number
+
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set autoindent
+set smartindent
+
+" Trying this out for now
+set virtualedit=all
+
+set scrolloff=12
+
+set wrap
+set linebreak
+set showbreak=>
+
+set ruler
+set title
+set showmode
+
+set backspace=indent,eol,start
+
+set display+=lastline
+
+" Statusline
+set laststatus=2
+set statusline=
+set statusline+=%y
+set statusline+=\ %f
+set statusline+=%=
+set statusline+=\ l%l/%L\ c%c
+set statusline+=\ %p%%
+
+set cursorline
+
+" end various settings }
+
+" syntastic settings
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" highlighting functions
+" {
+" Functions to execute highlighting for various filetypes.
+
+" Default highlighting stuff
+function DoHighlights()
+	highlight clear
+	highlight Normal ctermfg=White
+	highlight SpecialKey ctermfg=DarkGray
+	highlight NonText ctermfg=DarkGray
+	highlight CursorLine cterm=bold
+	highlight CursorLineNr ctermfg=White cterm=underline,bold
+	highlight LineNr ctermfg=Gray
+	highlight Folded ctermfg=DarkCyan ctermbg=Black
+	highlight FoldColumn ctermfg=DarkCyan ctermbg=Black
+    highlight PreProc ctermfg=DarkGray
+	highlight MatchParen cterm=underline,bold ctermfg=Magenta ctermbg=LightMagenta
+	highlight vimComment ctermfg=Gray
+
+    " git gutter
+    highlight SignColumn ctermbg=Black
+    highlight GitGutterAdd ctermfg=Green
+    highlight GitGutterDelete ctermfg=Red
+    highlight GitGutterChange ctermfg=Yellow
+
+    " C
+	highlight cComment ctermfg=DarkGray
+	highlight cConstant ctermfg=Magenta
+	highlight cType ctermfg=Blue
+	highlight cInclude ctermfg=DarkGray
+	highlight cIncluded ctermfg=Green
+	highlight cPreProc ctermfg=Gray
+	highlight cDefine ctermfg=Gray
+	highlight cString ctermfg=DarkGreen
+	highlight cStatement cterm=bold ctermfg=Red
+
+    " Rust
+	highlight rustKeyword ctermfg=Red
+	highlight rustString ctermfg=DarkGreen
+	highlight rustCommentLine ctermfg=DarkGray
+	highlight rustCommentBloc ctermfg=DarkGray
+	highlight rustStorage ctermfg=Magenta
+	highlight rustConditional ctermfg=Yellow
+	highlight rustRepeat ctermfg=Yellow
+	highlight rustUnsafeKeyword ctermfg=Red
+	highlight rustFuncName ctermfg=White
+	highlight rustMacro ctermfg=LightGray
+	highlight rustAttribute ctermfg=LightGreen
+	highlight rustDerive ctermfg=LightGreen
+	highlight rustDeriveTrait ctermfg=LightGreen
+	highlight rustOperator ctermfg=White
+	highlight rustSelf ctermfg=LightBlue
+	highlight rustType ctermfg=Blue
+	highlight rustTypedef ctermfg=Blue
+	highlight rustStructure ctermfg=Blue
+	highlight rustModPath ctermfg=White
+	highlight rustFuncCall ctermfg=White
+	highlight rustTrait ctermfg=Yellow
+	highlight rustPanic ctermfg=Red
+
+    " Python
+	highlight pythonFunction ctermfg=Blue
+	highlight pythonBuiltin ctermfg=Yellow
+	highlight pythonInclude ctermfg=Brown
+	highlight pythonComment ctermfg=Gray
+	highlight pythonString ctermfg=DarkGreen
+	highlight pythonQuotes ctermfg=Green cterm=bold
+	highlight pythonStatement cterm=bold ctermfg=Red
+
+    " HTML
+	highlight htmlTag ctermfg=DarkGrey
+	highlight htmlEndTag ctermfg=DarkGrey
+	highlight htmlTagName ctermfg=LightBlue
+	highlight htmlString ctermfg=Green
+	highlight htmlArg ctermfg=Blue
+	highlight htmlComment ctermfg=Grey
+endfunction
+
+" end highlighting }
+
+" autocmds
+" {
+
+autocmd VimEnter * call DoHighlights()
+autocmd FileType html call HtmlBindings()
+autocmd BufEnter,FileType make :set noexpandtab
+autocmd BufLeave,FileType make :set expandtab
+
+" end autocmds }
+
+" other functions
+" {
+
+" Saves a windows-compatible version.
+function Save()
+	execute ":set fileformat=dos"
+	execute ":w! %_dos"
+	execute ":set fileformat=unix"
+endfunction
+command -nargs=0 Winsave :call Save() 
+
+command Vimrc execute ":edit ~/.vimrc"
+command Bashrc execute ":edit ~/.bashrc"
+
+" end random functions }
+
