@@ -4,26 +4,32 @@ set -euo pipefail
 main () {
   while [ $# -ne 0 ]
   do
-    local giturl="$1"
+    local giturl="git://github.com/$1"
     shift
     local path=.vim/bundle/"$(echo "$giturl" | tr / '\n' | tail -n1 | cut -f1 -d.)"
 
-    git submodule add -- "$giturl" "$path"
+    if ! [ -a "$path" ]
+    then
+      git submodule add -- "$giturl" "$path"
+    else
+      echo >&2 "warn: path for '$giturl' ($path) already exists, skip adding it"
+    fi
   done
 }
 
 main \
-  git://github.com/tpope/vim-commentary.git \
-  git://github.com/altercation/vim-colors-solarized.git \
-  git://github.com/tpope/vim-fugitive.git \
-  git://github.com/tpope/vim-surround.git \
-  git://github.com/airblade/vim-gitgutter.git \
-  git://github.com/tpope/vim-abolish.git \
-  git://github.com/tpope/vim-repeat.git \
-  git://github.com/godlygeek/tabular.git \
-  git://github.com/jalvesaq/Nvim-R.git \
-  git://github.com:rhysd/vim-grammarous.git \
-  git://github.com/bhurlow/vim-parinfer.git \
-  git://github.com/vimwiki/vimwiki.git \
-  git://github.com/vlime/vlime.git
+  tpope/vim-commentary.git \
+  altercation/vim-colors-solarized.git \
+  tpope/vim-fugitive.git \
+  tpope/vim-surround.git \
+  airblade/vim-gitgutter.git \
+  tpope/vim-abolish.git \
+  tpope/vim-repeat.git \
+  godlygeek/tabular.git \
+  jalvesaq/Nvim-R.git \
+  rhysd/vim-grammarous.git \
+  bhurlow/vim-parinfer.git \
+  vimwiki/vimwiki.git \
+  vlime/vlime.git \
+  wgwoods/vim-systemd-syntax
 
