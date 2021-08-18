@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+set -euo pipefail
+source /home/antony/github/home/utils.bash
+
+flag_dry_run=no
+flag_help=no
+flag_trace=no
+
+argv=()
+while [ $# -ne 0 ]
+do
+  case "$1" in
+    --dry-run) #HELP: (flag) Show what would be done, but do not write any output.
+      shift
+      flag_dry_run=yes
+      ;;
+
+    -h | --help) #HELP: (flag) Show this help and exit.
+      shift
+      flag_help=yes
+      ;;
+
+    -x) #HELP: (flag) Enable debug tracing.
+      shift
+      flag_trace=yes
+      ;;
+
+    -* | --*)
+      bail 1 "Received unknown option '$1'."
+      ;;
+
+    *)
+      argv+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [ "$flag_trace" = yes ]
+then
+  set -x
+fi
+
+if [ "$flag_help" = yes ]
+then
+  showhelp '[ OPTIONS ]' '[ BINARY NAMES ... ]'
+  exit 1
+fi
+
+if [ "${#argv[@]}" -eq 0 ]
+then
+  msg "No names given. Nothing to do."
+  exit 0
+fi
+
+for arg in "${argv[@]}"
+do
+  bin=/home/antony/github/home/bin/"$arg"
+
+  outfile="$(mktemp)"
+  trap 'rm -f "$outfile"' EXIT
+
+  cat >"$outfile" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+source /home/antony/github/home/utils.bash
+
+flag_dry_run=no
+flag_help=no
+flag_trace=no
+
+argv=()
+while [ \$# -ne 0 ]
+do
+  case "\$1" in
+    --dry-run) #HELP: (flag) Show what would be done, but do not write any output.
+      shift
+      flag_dry_run=yes
+      ;;
+
+    -h | --help) #HELP: (flag) Show this help and exit.
+      shift
+      flag_help=yes
+      ;;
+
+    -x) #HELP: (flag) Enable debug tracing.
+      shift
+      flag_trace=yes
+      ;;
+
+    -* | --*)
+      bail 1 "Received unknown option '\$1'."
+      ;;
+
+    *)
+      argv+=("\$1")
+      shift
+      ;;
+  esac
+done
+
+if [ "\$flag_trace" = yes ]
+then
+  set -x
+fi
+
+if [ "\$flag_help" = yes ]
+then
+  showhelp '[ OPTIONS ]' '[ ARGS ... ]'
+  exit 1
+fi
+
+for arg in "${argv[@]}"
+do
+done
+EOF
+
+  bin_exists=no
+  if [ -a "$bin" ]
+  then
+    bin_exists=yes
+  fi
+
+  case "$flag_dry_run,$bin_exists" in
+    yes,yes)
+      msg "(dry-run) file exists, would ask whether to overwrite it or not."
+      ;;
+
+    yes,no)
+      msg "(dry-run) would write the following contents to file:"
+      msg "$bin"
+      cat >&2 "$outfile"
+      ;;
+
+    no,yes)
+      yes-or-no "'$bin' already exists, overwrite?"
+      if [ "$REPLY" = no ]
+      then
+        msg "ok; skipping."
+        continue
+      else
+        cp "$outfile" "$bin"
+        chmod +x "$bin"
+        echo "$bin"
+      fi
+      ;;
+
+    no,no)
+      cp "$outfile" "$bin"
+      chmod +x "$bin"
+      echo "$bin"
+      ;;
+  esac
+done
+

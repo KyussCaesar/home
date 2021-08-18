@@ -44,10 +44,12 @@ make-link () {
 }
 
 make-link \
-  ./.config/i3/config \
-  ./.config/picom/picom.conf \
+  .config/i3/config \
+  .config/picom/picom.conf \
+  .config/systemd \
   .vimrc \
-  .vimrc-pager
+  .vimrc-pager \
   .bashrc \
   .vim \
+  bin
 

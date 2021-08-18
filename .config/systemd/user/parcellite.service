@@ -1,0 +1,13 @@
+[Unit]
+Description=parcellite clipboard daemon
+Documentation=https://parcellite.sourceforge.net
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Type=exec
+ExecStart=/home/antony/github/home/services/parcellite.bash
+Restart=always
+

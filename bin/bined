@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+set -euo pipefail
+source /home/antony/github/home/utils.bash
+
+flag_dry_run=no
+flag_help=no
+flag_trace=no
+
+opt_editor=()
+
+argv=()
+while [ $# -ne 0 ]
+do
+  case "$1" in
+    --dry-run) #HELP: (flag) Show what would be done, but do not write any output.
+      shift
+      flag_dry_run=yes
+      ;;
+
+    --editor) #HELP: (option) Specify the editor to use (default=$EDITOR)
+      shift
+      opt_editor=($1)
+      ;;
+
+    -h | --help) #HELP: (flag) Show this help and exit.
+      shift
+      flag_help=yes
+      ;;
+
+    -x) #HELP: (flag) Enable debug tracing.
+      shift
+      flag_trace=yes
+      ;;
+
+    -* | --*)
+      bail 1 "Received unknown option '$1'."
+      ;;
+
+    *)
+      argv+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [ "$flag_trace" = yes ]
+then
+  set -x
+fi
+
+if [ "$flag_help" = yes ]
+then
+  showhelp '[ OPTIONS ]'
+  exit 1
+fi
+
+bins=()
+for arg in "${argv[@]}"
+do
+  set +e
+  which="$(command -v "$arg")"
+  set -e
+
+  if ! [ -z "$which" ]
+  then
+    bins+=("$which")
+  else
+    msg "no '$arg' command found, skipping."
+  fi
+done
+
+cmd=()
+if [ ${#opt_editor[@]} -ne 0 ]
+then
+  cmd+=("${opt_editor[@]}")
+elif ! [ -z "$EDITOR" ]
+then
+  cmd+=($EDITOR)
+else
+  bail 1 "No editor specified; try setting \$EDITOR envvar or use '--editor vim'"
+fi
+
+"${cmd[@]}" "${bins[@]}"
+

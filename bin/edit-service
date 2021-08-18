@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+source ~/github/home/utils.bash
+
+flag_help=no
+flag_trace=no
+
+argv=()
+while [ $# -ne 0 ]
+do
+  case "$1" in
+    -h | --help) #HELP: (flag) Show this help and exit.
+      shift
+      flag_help=yes
+      ;;
+
+    -x) #HELP: (flag) Enable debug tracing.
+      shift
+      flag_trace=yes
+      ;;
+
+    -* | --*)
+      bail 1 "Received unknown option '$1'."
+      ;;
+
+    *)
+      argv+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [ "$flag_trace" = yes ]
+then
+  set -x
+fi
+
+if [ "$flag_help" = yes ]
+then
+  showhelp '[ OPTIONS ]' '[ ARGS ... ]'
+  exit 1
+fi
+
+for arg in "${argv[@]}"
+do
+  unit=~/.config/systemd/user/"$arg".service
+  script=~/github/home/services/"$arg".bash
+
+  if [ ! -f "$unit" ] || [ ! -r "$unit" ]
+  then
+    msg "For service '$arg', '$unit' is not a readable file. Skipping."
+    continue
+  fi
+
+  if [ ! -f "$script" ] || [ ! -r "$script" ]
+  then
+    msg "For service '$arg', '$script' is not a readable file. Skipping."
+    continue
+  fi
+
+  $EDITOR -o "$unit" "$script"
+done
