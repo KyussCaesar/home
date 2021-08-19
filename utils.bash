@@ -104,7 +104,7 @@ showhelp () {
   fi
 
   cat >&2 <<EOF
-usage: $0 [ OPTIONS ] [ ARGS ]
+usage: $SCRIPT_NAME [ OPTIONS ] [ ARGS ]
 options:
 EOF
   grep HELP "$SCRIPT_PATH" |

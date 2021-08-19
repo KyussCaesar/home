@@ -4,6 +4,7 @@ source ./utils.bash
 
 require-env HOME
 
+# ensure various files/dirs are linked
 make-link () {
   while [ $# -ne 0 ]
   do
@@ -49,7 +50,11 @@ make-link \
   .config/systemd \
   .vimrc \
   .vimrc-pager \
-  .bashrc \
   .vim \
   bin
+
+# ensure ~/bin is on PATH
+
+# ensure global gitignore
+git config --global core.excludesfile "$(pwd)"/gitignore_global
 

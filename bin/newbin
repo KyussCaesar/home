@@ -25,6 +25,12 @@ do
       flag_trace=yes
       ;;
 
+    --) #HELP: (flag) Halt option processing.
+      shift
+      argv+=("$@")
+      break
+      ;;
+
     -* | --*)
       bail 1 "Received unknown option '$1'."
       ;;
@@ -88,6 +94,12 @@ do
       flag_trace=yes
       ;;
 
+    --) #HELP: (flag) Halt option processing.
+      shift
+      argv+=("\$@")
+      break
+      ;;
+
     -* | --*)
       bail 1 "Received unknown option '\$1'."
       ;;
@@ -110,7 +122,7 @@ then
   exit 1
 fi
 
-for arg in "${argv[@]}"
+for arg in "\${argv[@]}"
 do
 done
 EOF
