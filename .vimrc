@@ -363,5 +363,18 @@ function AuthorCreated()
   call Created()
 endfunction
 
+function QuicklistUnderCursor()
+  let projectrootabs = trim(system('git rev-parse --show-toplevel'))
+  let projectroot = trim(system('realpath --relative-to=. ' . projectrootabs))
+  let pat = expand("<cword>")
+  let cmd = 'rg --vimgrep ' . pat . ' ' . projectroot
+  let errs = map(systemlist(cmd), 'trim(v:val)')
+  new
+  call setline(1, errs)
+  lbuffer!
+endfunction
+command Qluc :call QuicklistUnderCursor()
+nnoremap <Leader>ql :Qluc<CR>
+
 " end random functions }
 
