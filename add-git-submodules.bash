@@ -4,9 +4,9 @@ set -euo pipefail
 main () {
   while [ $# -ne 0 ]
   do
-    local giturl="git://github.com/$1"
+    local giturl="git://github.com/$1.git"
     shift
-    local path=.vim/bundle/"$(echo "$giturl" | tr / '\n' | tail -n1 | cut -f1 -d.)"
+    local path=.vim/bundle/"$(echo "$giturl" | tr / '\n' | tail -n1)"
 
     if ! [ -a "$path" ]
     then
@@ -18,18 +18,19 @@ main () {
 }
 
 main \
-  tpope/vim-commentary.git \
-  altercation/vim-colors-solarized.git \
-  tpope/vim-fugitive.git \
-  tpope/vim-surround.git \
-  airblade/vim-gitgutter.git \
-  tpope/vim-abolish.git \
-  tpope/vim-repeat.git \
-  godlygeek/tabular.git \
-  jalvesaq/Nvim-R.git \
-  rhysd/vim-grammarous.git \
-  bhurlow/vim-parinfer.git \
-  vimwiki/vimwiki.git \
-  vlime/vlime.git \
-  wgwoods/vim-systemd-syntax
+  tpope/vim-commentary \
+  altercation/vim-colors-solarized \
+  tpope/vim-fugitive \
+  tpope/vim-surround \
+  airblade/vim-gitgutter \
+  tpope/vim-abolish \
+  tpope/vim-repeat \
+  godlygeek/tabular \
+  jalvesaq/Nvim-R \
+  rhysd/vim-grammarous \
+  bhurlow/vim-parinfer \
+  vimwiki/vimwiki \
+  vlime/vlime \
+  wgwoods/vim-systemd-syntax \
+  ludovicchabant/vim-gutentags
 

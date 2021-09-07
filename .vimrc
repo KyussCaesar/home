@@ -40,6 +40,9 @@ set keywordprg=:Man
 inoremap zE zR
 nnoremap zE zR
 
+" chdir to $(dirname %)
+set autochdir
+
 " navigation and keybindings
 " {       
 
@@ -144,7 +147,81 @@ function ProseBindings()
     setlocal spell
 endfunction
 
+function GolangBindings()
+endfunction
 " }
+
+" tags
+function FindTagsFile(dir)
+  if len(a:dir) == 0
+    call FindTagsFile(getcwd())
+    return
+  endif
+
+  let tagspath = ""
+  if a:dir != "/"
+    let tagspath = a:dir . "/tags"
+    if filereadable(tagspath)
+      execute "set tags=" . tagspath
+    else
+      call FindTagsFile(fnamemodify(a:dir, ":h"))
+    endif
+  endif
+endfunction
+
+let g:tagbar_ctags_bin = "/usr/local/bin/ctags"
+
+let g:tagbar_type_tf = {
+  \ 'ctagstype': 'tf',
+  \ 'kinds': [
+    \ 'r:Resource',
+    \ 'R:Resource',
+    \ 'd:Data',
+    \ 'D:Data',
+    \ 'v:Variable',
+    \ 'V:Variable',
+    \ 'p:Provider',
+    \ 'P:Provider',
+    \ 'm:Module',
+    \ 'M:Module',
+    \ 'o:Output',
+    \ 'O:Output',
+    \ 'f:TFVar',
+    \ 'F:TFVar'
+  \ ]
+\ }
+
+let g:gutentags_ctags_executable = "/usr/local/bin/ctags"
+
+let g:gutentags_ctags_exclude = ['node_modules/*', 'dist/*']
+
+function QuicklistUnderCursor()
+  let projectrootabs = trim(system('git rev-parse --show-toplevel'))
+  let projectroot = trim(system('realpath --relative-to=. ' . projectrootabs))
+  let pat = expand("<cword>")
+  let cmd = 'rg --vimgrep ' . pat . ' ' . projectroot
+  let errs = map(systemlist(cmd), 'trim(v:val)')
+  new
+  call setline(1, errs)
+  lbuffer!
+endfunction
+command Qluc :call QuicklistUnderCursor()
+nnoremap <Leader>ql :Qluc<CR>
+
+function CopyGithubURL(line1, line2)
+  let cmd = "git remote get-url origin | sed -e 's/:/\\//' -e 's/git@/https:\\/\\//' -e 's/\\.git$//'"
+  let projecturl = trim(system(cmd))
+  let prefix = trim(system("git rev-parse --show-prefix"))
+  let filename = expand("%:t")
+  let ref = trim(system("git rev-parse --abbrev-ref HEAD"))
+  if ref ==# "HEAD"
+    let ref = trim(system("git rev-parse HEAD"))
+  endif
+  let url = projecturl . "/blob/" . ref . "/" . prefix . filename . "#L" . a:line1 . "-L" . a:line2
+  echomsg url
+  call system("echo '" . url . "' | pbcopy")
+endfunction
+command -range Github :call CopyGithubURL(<line1>, <line2>)
 
 " folding
 " {
@@ -300,6 +377,7 @@ endfunction
 " {
 
 autocmd VimEnter * call DoHighlights()
+autocmd BufEnter,BufRead * call FindTagsFile("")
 autocmd BufEnter *.html call HtmlBindings()
 autocmd BufEnter makefile :setlocal noexpandtab
 autocmd BufEnter Makefile :setlocal noexpandtab
@@ -308,6 +386,7 @@ autocmd BufEnter *.tex call ProseBindings()
 autocmd BufEnter *.latex call ProseBindings()
 autocmd BufEnter *.wiki call ProseBindings()
 autocmd BufEnter nginx.conf setfiletype nginx 
+autocmd BufEnter *.go call GolangBindings()
 
 function ForceTabStop()
   set tabstop=2
@@ -347,34 +426,6 @@ command -nargs=1 -complete=file CppOpen :call CppOpen(<f-args>)
 command Vimrc execute ":edit ~/.vimrc"
 command Bashrc execute ":edit ~/.bashrc"
 
-function Author()
-  normal Aauthor: Antony Southworth <antony.southworth@quantiful.co.nz>
-  normal gcc
-endfunction
-
-function Created()
-  read! date +'\%Y-\%m-\%d'
-  normal ICreated: 
-  normal gcc
-endfunction
-
-function AuthorCreated()
-  call Author()
-  call Created()
-endfunction
-
-function QuicklistUnderCursor()
-  let projectrootabs = trim(system('git rev-parse --show-toplevel'))
-  let projectroot = trim(system('realpath --relative-to=. ' . projectrootabs))
-  let pat = expand("<cword>")
-  let cmd = 'rg --vimgrep ' . pat . ' ' . projectroot
-  let errs = map(systemlist(cmd), 'trim(v:val)')
-  new
-  call setline(1, errs)
-  lbuffer!
-endfunction
-command Qluc :call QuicklistUnderCursor()
-nnoremap <Leader>ql :Qluc<CR>
 
 " end random functions }
 
